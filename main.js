@@ -1,5 +1,5 @@
 const { crawlPage } = require('./crawl.js');
-
+const { createReport } = require('./report.js');
 async function main() {
   if (process.argv.length < 3) {
     console.log('No Website Provided!');
@@ -19,10 +19,7 @@ async function main() {
   const baseURL = process.argv[2];
   console.log('Starting Crawl website of ' + baseURL);
   const pages = await crawlPage(baseURL, baseURL, {});
-
-  for (const page of Object.entries(pages)) {
-    console.log(page);
-  }
+  createReport(pages);
 }
 
 main();
