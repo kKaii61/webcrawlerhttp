@@ -1,8 +1,37 @@
 const { JSDOM } = require('jsdom');
 
+async function crawlPage(currentURL) {
+  console.log('Actively crawl page: ' + currentURL);
+  // fetching the current page
+  try {
+    const resp = await fetch(currentURL);
+    // TODO: Should make the error handling more detail than just resp.status > 399
+    // Need to make a research on this error handling
+    if ((await resp.status) > 399) {
+      console.error(
+        'Error in feconnection: ' + resp.status + ' on page ' + currentURL
+      );
+      return;
+    }
+
+    // Check if the page content is html
+    const contentType = resp.headers.get('content-type');
+    console.log(contentType);
+
+    if (!contentType.includes('text/html')) {
+      console.log('Non HTML response, content type is ' + contentType);
+      return;
+    }
+    console.log(await resp.text());
+  } catch (error) {
+    console.error(`error in fetching: ${error.message}, on page ${currentURL}`);
+  }
+}
+
 function getUrlFromHtml(htmlBody, baseURL) {
   let urls = [];
   const dom = new JSDOM(htmlBody);
+  // Get all the <a> tags in the HTML page.
   const linkElements = dom.window.document.querySelectorAll('a');
   for (const linkElement of linkElements) {
     // Check if the link element is relative or absolute then convert
@@ -41,4 +70,4 @@ function normalizeUrl(url) {
   return strippedUrl;
 }
 
-module.exports = { normalizeUrl, getUrlFromHtml };
+module.exports = { normalizeUrl, getUrlFromHtml, crawlPage };
