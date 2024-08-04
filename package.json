@@ -1,0 +1,23 @@
+{
+  "name": "webcrawler",
+  "version": "1.0.0",
+  "description": "WebCrawler Project Using NodeJs",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kKaii61/webcrawlerhttp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kKaii61/webcrawlerhttp/issues"
+  },
+  "homepage": "https://github.com/kKaii61/webcrawlerhttp#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
