@@ -1,31 +1,51 @@
 const { JSDOM } = require('jsdom');
 
-async function crawlPage(currentURL) {
-  console.log('Actively crawl page: ' + currentURL);
+async function crawlPage(baseURL, currentURL, pages) {
+  const baseURLObj = new URL(baseURL);
+  const currentURLObj = new URL(currentURL);
+  if (baseURLObj.hostname !== currentURLObj.hostname) {
+    return pages;
+  }
+
+  const normalizedCurrentURL = normalizeUrl(currentURL);
+  if (pages[normalizedCurrentURL] > 0) {
+    pages[normalizedCurrentURL]++;
+    // console.log(pages);
+    return pages;
+  }
+
+  pages[normalizedCurrentURL] = 1;
+
+  console.log('Actively crawling page: ' + currentURL);
   // fetching the current page
   try {
     const resp = await fetch(currentURL);
+
     // TODO: Should make the error handling more detail than just resp.status > 399
     // Need to make a research on this error handling
     if ((await resp.status) > 399) {
       console.error(
         'Error in feconnection: ' + resp.status + ' on page ' + currentURL
       );
-      return;
+      return pages;
     }
 
     // Check if the page content is html
     const contentType = resp.headers.get('content-type');
-    console.log(contentType);
-
     if (!contentType.includes('text/html')) {
       console.log('Non HTML response, content type is ' + contentType);
-      return;
+      return pages;
     }
-    console.log(await resp.text());
+
+    const htmlBody = await resp.text();
+    const nextURLs = getUrlFromHtml(htmlBody, baseURL);
+    for (const nextURL of nextURLs) {
+      pages = await crawlPage(baseURL, nextURL, pages);
+    }
   } catch (error) {
     console.error(`error in fetching: ${error.message}, on page ${currentURL}`);
   }
+  return pages;
 }
 
 function getUrlFromHtml(htmlBody, baseURL) {
